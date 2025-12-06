@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  body {
+    @apply bg-gradient-to-br from-slate-50 to-slate-100 dark:from-dark-900 dark:to-dark-800;
+    @apply text-slate-900 dark:text-dark-50;
+    @apply transition-colors duration-300;
+  }
+  * {
+    @apply transition-all duration-200;
+  }
+}
