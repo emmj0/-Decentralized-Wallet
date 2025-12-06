@@ -66,16 +66,6 @@ Frontend runs on **http://localhost:5173** ✅
 
 ---
 
-## 📖 Documentation
-
-| Document | Purpose |
-|----------|---------|
-| **QUICKSTART.md** | 5-minute setup & test walkthrough |
-| **TESTING_GUIDE.md** | Comprehensive testing guide with all scenarios |
-| **TEST_INPUTS.md** | Copy-paste test data & API examples |
-| **QUICK_REFERENCE.md** | One-page quick reference |
-| **IMPLEMENTATION_SUMMARY.md** | What's been built & recent changes |
-| **FLY_DEPLOYMENT.md** | Deploy backend to Fly.io (free tier) |
 
 ---
 
