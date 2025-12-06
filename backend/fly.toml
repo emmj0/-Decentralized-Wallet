@@ -1,0 +1,36 @@
+app = "decentralized-wallet-api"
+primary_region = "sjc"
+
+[build]
+  builder = "docker"
+
+[env]
+  PORT = "8080"
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 8080
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.tcp_checks]
+    enabled = true
+    grace_period = "10s"
+    interval = "30s"
+    timeout = "5s"
+
+[checks]
+  [checks.status]
+    type = "http"
+    port = 8080
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/api/status"

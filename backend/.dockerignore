@@ -1,0 +1,7 @@
+*.exe
+.git
+.github
+.gitignore
+README.md
+docs
+frontend

@@ -1,16 +1,43 @@
 package main
 
 import (
+	"encoding/base64"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/student/decentralized-wallet/internal/api"
 	"github.com/student/decentralized-wallet/internal/db"
 )
 
+// initFirestoreFromEnv decodes FIREBASE_JSON_B64 and sets GOOGLE_APPLICATION_CREDENTIALS for Fly.io deployment
+func initFirestoreFromEnv() error {
+	fbJsonB64 := os.Getenv("FIREBASE_JSON_B64")
+	if fbJsonB64 == "" {
+		// dev mode or file-based credentials (GOOGLE_APPLICATION_CREDENTIALS already set)
+		return nil
+	}
+	data, err := base64.StdEncoding.DecodeString(fbJsonB64)
+	if err != nil {
+		return fmt.Errorf("failed to decode FIREBASE_JSON_B64: %w", err)
+	}
+	tmpFile := filepath.Join(os.TempDir(), "firebase.json")
+	if err := os.WriteFile(tmpFile, data, 0600); err != nil {
+		return fmt.Errorf("failed to write firebase.json: %w", err)
+	}
+	os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", tmpFile)
+	return nil
+}
+
 func main() {
+	// Decode Firebase credentials if provided via Fly.io secret
+	if err := initFirestoreFromEnv(); err != nil {
+		log.Printf("Firebase env setup warning: %v -- trying default credentials", err)
+	}
+
 	addr := ":8080"
 	if v := os.Getenv("PORT"); v != "" {
 		addr = ":" + v
