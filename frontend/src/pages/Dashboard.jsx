@@ -47,7 +47,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="px-4 sm:px-6 lg:px-8 py-6 max-w-6xl mx-auto">
       <h2 className="text-2xl font-bold mb-6">📊 Dashboard</h2>
       
       {loading && <div className="flex justify-center p-8"><Spinner /></div>}
@@ -55,7 +55,7 @@ export default function Dashboard() {
       {!loading && (
         <>
           {/* Main Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6">
             {/* Wallet Balance Card */}
             <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-6 shadow-lg">
               <div className="text-sm opacity-90 mb-1">Current Balance</div>
@@ -79,9 +79,9 @@ export default function Dashboard() {
           </div>
 
           {/* Quick Actions */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6 mb-6 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-lg p-5 sm:p-6 mb-6 shadow-sm">
             <h3 className="text-lg font-semibold mb-4">⚡ Quick Actions</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
               <Link
                 to="/send"
                 className="flex flex-col items-center justify-center p-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition text-center"
@@ -117,7 +117,7 @@ export default function Dashboard() {
           </div>
 
           {/* Recent Transactions */}
-          <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-lg p-5 sm:p-6 shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">🕐 Recent Activity</h3>
               <Link to="/transactions" className="text-sm text-blue-600 hover:text-blue-700 font-medium">

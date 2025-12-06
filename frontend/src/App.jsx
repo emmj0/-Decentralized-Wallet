@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom'
 import WalletGen from './pages/WalletGen'
 import SendMoney from './pages/SendMoney'
@@ -18,36 +18,74 @@ import { useAuth } from './contexts/AuthContext'
 function AppHeader() {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const closeMobile = () => setMobileOpen(false)
 
   return (
-    <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
+    <header className="bg-white/90 backdrop-blur border-b border-slate-200 sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+        <div className="flex items-center justify-between gap-3">
+          <Link to="/" className="flex items-center space-x-2" onClick={closeMobile}>
             <h1 className="text-xl font-bold text-blue-600">💰 Decentralized Wallet</h1>
           </Link>
-          <nav className="hidden md:flex items-center space-x-6">
+
+          <div className="flex items-center gap-3">
+            <button
+              className="md:hidden inline-flex items-center justify-center rounded-lg border border-slate-200 px-3 py-2 text-slate-700 hover:bg-slate-50"
+              onClick={() => setMobileOpen(o => !o)}
+              aria-label="Toggle navigation"
+            >
+              {mobileOpen ? '✕' : '☰'}
+            </button>
+
+            <nav className="hidden md:flex items-center space-x-6">
+              {user ? (
+                <>
+                  <Link to="/dashboard" className="text-sm text-slate-700 hover:text-blue-600 transition">Dashboard</Link>
+                  <Link to="/wallet" className="text-sm text-slate-700 hover:text-blue-600 transition">Wallet</Link>
+                  <Link to="/profile" className="text-sm text-slate-700 hover:text-blue-600 transition">Profile</Link>
+                  <Link to="/send" className="text-sm text-slate-700 hover:text-blue-600 transition">Send</Link>
+                  <Link to="/blocks" className="text-sm text-slate-700 hover:text-blue-600 transition">Blocks</Link>
+                  <Link to="/transactions" className="text-sm text-slate-700 hover:text-blue-600 transition">Txs</Link>
+                  <Link to="/reports" className="text-sm text-slate-700 hover:text-blue-600 transition">Reports</Link>
+                  <Link to="/admin" className="text-sm text-slate-700 hover:text-blue-600 transition">Admin</Link>
+                  <Link to="/admin-signup" className="text-sm text-yellow-600 hover:text-yellow-700 transition">Make Admin</Link>
+                  <button onClick={() => { signOut(); navigate('/'); }} className="text-sm text-red-600 hover:text-red-700 transition">Sign Out</button>
+                </>
+              ) : (
+                <>
+                  <Link to="/" className="text-sm text-slate-700 hover:text-blue-600 transition">Home</Link>
+                  <Link to="/auth" className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition">Login</Link>
+                </>
+              )}
+            </nav>
+          </div>
+        </div>
+
+        {mobileOpen && (
+          <nav className="md:hidden mt-3 space-y-2 bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
             {user ? (
-              <>
-                <Link to="/dashboard" className="text-sm text-slate-700 hover:text-blue-600 transition">Dashboard</Link>
-                <Link to="/wallet" className="text-sm text-slate-700 hover:text-blue-600 transition">Wallet</Link>
-                <Link to="/profile" className="text-sm text-slate-700 hover:text-blue-600 transition">Profile</Link>
-                <Link to="/send" className="text-sm text-slate-700 hover:text-blue-600 transition">Send</Link>
-                <Link to="/blocks" className="text-sm text-slate-700 hover:text-blue-600 transition">Blocks</Link>
-                <Link to="/transactions" className="text-sm text-slate-700 hover:text-blue-600 transition">Txs</Link>
-                <Link to="/reports" className="text-sm text-slate-700 hover:text-blue-600 transition">Reports</Link>
-                <Link to="/admin" className="text-sm text-slate-700 hover:text-blue-600 transition">Admin</Link>
-                <Link to="/admin-signup" className="text-sm text-yellow-600 hover:text-yellow-700 transition">Make Admin</Link>
-                <button onClick={() => { signOut(); navigate('/'); }} className="text-sm text-red-600 hover:text-red-700 transition">Sign Out</button>
-              </>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <Link to="/dashboard" className="px-3 py-2 rounded bg-slate-50 hover:bg-slate-100" onClick={closeMobile}>Dashboard</Link>
+                <Link to="/wallet" className="px-3 py-2 rounded bg-slate-50 hover:bg-slate-100" onClick={closeMobile}>Wallet</Link>
+                <Link to="/profile" className="px-3 py-2 rounded bg-slate-50 hover:bg-slate-100" onClick={closeMobile}>Profile</Link>
+                <Link to="/send" className="px-3 py-2 rounded bg-slate-50 hover:bg-slate-100" onClick={closeMobile}>Send</Link>
+                <Link to="/blocks" className="px-3 py-2 rounded bg-slate-50 hover:bg-slate-100" onClick={closeMobile}>Blocks</Link>
+                <Link to="/transactions" className="px-3 py-2 rounded bg-slate-50 hover:bg-slate-100" onClick={closeMobile}>Txs</Link>
+                <Link to="/reports" className="px-3 py-2 rounded bg-slate-50 hover:bg-slate-100" onClick={closeMobile}>Reports</Link>
+                <Link to="/admin" className="px-3 py-2 rounded bg-slate-50 hover:bg-slate-100" onClick={closeMobile}>Admin</Link>
+                <Link to="/admin-signup" className="px-3 py-2 rounded bg-yellow-50 text-yellow-700 hover:bg-yellow-100" onClick={closeMobile}>Make Admin</Link>
+                <button onClick={() => { signOut(); navigate('/'); closeMobile(); }} className="px-3 py-2 rounded bg-red-50 text-red-700 hover:bg-red-100">Sign Out</button>
+              </div>
             ) : (
-              <>
-                <Link to="/" className="text-sm text-slate-700 hover:text-blue-600 transition">Home</Link>
-                <Link to="/auth" className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition">Login</Link>
-              </>
+              <div className="space-y-2 text-sm">
+                <Link to="/" className="block px-3 py-2 rounded bg-slate-50 hover:bg-slate-100" onClick={closeMobile}>Home</Link>
+                <Link to="/auth" className="block px-3 py-2 rounded bg-blue-600 text-white text-center hover:bg-blue-700" onClick={closeMobile}>Login</Link>
+              </div>
             )}
           </nav>
-        </div>
+        )}
       </div>
     </header>
   )
@@ -82,7 +120,7 @@ export default function App() {
     <BrowserRouter>
       <div className="min-h-screen flex flex-col">
         <AppHeader />
-        <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-8 animate-fade-in">
+        <main className="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-8 animate-fade-in">
           <AppRoutes />
         </main>
         <footer className="glass-card mt-12 border-t border-white/20 dark:border-dark-700/20">

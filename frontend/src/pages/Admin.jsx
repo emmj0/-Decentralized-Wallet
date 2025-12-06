@@ -104,18 +104,18 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <div className="max-w-6xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
         <div className="bg-white rounded-lg shadow">
           {/* Header */}
-          <div className="border-b border-slate-200 p-6">
+          <div className="border-b border-slate-200 p-5 sm:p-6">
             <h1 className="text-3xl font-bold text-slate-900">Admin Control Panel</h1>
             <p className="text-slate-600 mt-2">Blockchain & Wallet Management</p>
-            <p className="text-sm text-slate-500 mt-1">Signed in as: <span className="font-mono bg-slate-100 px-2 py-1">{user?.email}</span></p>
+            <p className="text-sm text-slate-500 mt-1 break-all">Signed in as: <span className="font-mono bg-slate-100 px-2 py-1 rounded">{user?.email}</span></p>
           </div>
 
           {/* Tabs */}
-          <div className="border-b border-slate-200 px-6">
-            <div className="flex gap-1 overflow-x-auto">
+          <div className="border-b border-slate-200 px-4 sm:px-6">
+            <div className="flex gap-1 overflow-x-auto pb-2">
               {[
                 { id: 'fund', label: '💰 Fund Wallet', icon: '💰' },
                 { id: 'mine', label: '⛏️ Mine Block', icon: '⛏️' },
@@ -139,7 +139,7 @@ export default function Admin() {
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-5 sm:p-6">
             {/* FUND WALLET TAB */}
             {activeTab === 'fund' && (
               <div className="space-y-4">
@@ -170,7 +170,7 @@ export default function Admin() {
                   <button
                     onClick={fundWallet}
                     disabled={loading}
-                    className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
+                    className="px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 transition flex items-center justify-center gap-2 w-full sm:w-auto"
                   >
                     {loading && <Spinner />}
                     {loading ? 'Processing...' : 'Fund Wallet'}
@@ -200,7 +200,7 @@ export default function Admin() {
                 <button
                   onClick={mine}
                   disabled={loading}
-                  className="px-6 py-3 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-6 py-3 bg-amber-600 text-white font-medium rounded-lg hover:bg-amber-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
                 >
                   {loading && <Spinner />}
                   {loading ? 'Mining...' : '⛏️ Mine Block'}
@@ -229,7 +229,7 @@ export default function Admin() {
                 <button
                   onClick={validateChain}
                   disabled={loading}
-                  className="px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-6 py-3 bg-purple-600 text-white font-medium rounded-lg hover:bg-purple-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
                 >
                   {loading && <Spinner />}
                   {loading ? 'Validating...' : '✓ Validate Chain'}
@@ -279,7 +279,7 @@ export default function Admin() {
                   <button
                     onClick={computeZakat}
                     disabled={loading}
-                    className="px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition flex items-center justify-center gap-2"
                   >
                     {loading && <Spinner />}
                     {loading ? 'Computing...' : '🕌 Compute Zakat'}
