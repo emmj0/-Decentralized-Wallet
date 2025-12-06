@@ -115,3 +115,137 @@ func updateUserHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(u)
 }
+
+// addBeneficiaryHandler adds a beneficiary wallet ID to the user's list
+func addBeneficiaryHandler(w http.ResponseWriter, r *http.Request) {
+    vars := mux.Vars(r)
+    id := vars["id"]
+    uid, _ := r.Context().Value("uid").(string)
+    if uid == "" && db.AuthClient == nil {
+        // dev mode: allow
+    } else if uid != id {
+        http.Error(w, "forbidden", http.StatusForbidden)
+        return
+    }
+    var in struct {
+        BeneficiaryWalletID string `json:"beneficiary_wallet_id"`
+    }
+    if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+        http.Error(w, "invalid body: "+err.Error(), http.StatusBadRequest)
+        return
+    }
+    if in.BeneficiaryWalletID == "" {
+        http.Error(w, "beneficiary_wallet_id required", http.StatusBadRequest)
+        return
+    }
+    
+    u, err := db.GetUser(id)
+    if err != nil {
+        http.Error(w, "user not found: "+err.Error(), http.StatusNotFound)
+        return
+    }
+    
+    // Check if already in list
+    for _, b := range u.Beneficiaries {
+        if b == in.BeneficiaryWalletID {
+            http.Error(w, "beneficiary already exists", http.StatusBadRequest)
+            return
+        }
+    }
+    
+    u.Beneficiaries = append(u.Beneficiaries, in.BeneficiaryWalletID)
+    u.UpdatedAt = time.Now().UTC()
+    if err := db.UpdateUser(u); err != nil {
+        http.Error(w, "failed to update user: "+err.Error(), http.StatusInternalServerError)
+        return
+    }
+    
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]interface{}{
+        "message": "beneficiary added",
+        "beneficiaries": u.Beneficiaries,
+    })
+}
+
+// listBeneficiariesHandler returns the user's beneficiary list
+func listBeneficiariesHandler(w http.ResponseWriter, r *http.Request) {
+    vars := mux.Vars(r)
+    id := vars["id"]
+    uid, _ := r.Context().Value("uid").(string)
+    if uid == "" && db.AuthClient == nil {
+        // dev mode: allow
+    } else if uid != id {
+        http.Error(w, "forbidden", http.StatusForbidden)
+        return
+    }
+    
+    u, err := db.GetUser(id)
+    if err != nil {
+        http.Error(w, "user not found: "+err.Error(), http.StatusNotFound)
+        return
+    }
+    
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]interface{}{
+        "beneficiaries": u.Beneficiaries,
+    })
+}
+
+// removeBeneficiaryHandler removes a beneficiary from the user's list
+func removeBeneficiaryHandler(w http.ResponseWriter, r *http.Request) {
+    vars := mux.Vars(r)
+    id := vars["id"]
+    uid, _ := r.Context().Value("uid").(string)
+    if uid == "" && db.AuthClient == nil {
+        // dev mode: allow
+    } else if uid != id {
+        http.Error(w, "forbidden", http.StatusForbidden)
+        return
+    }
+    var in struct {
+        BeneficiaryWalletID string `json:"beneficiary_wallet_id"`
+    }
+    if err := json.NewDecoder(r.Body).Decode(&in); err != nil {
+        http.Error(w, "invalid body: "+err.Error(), http.StatusBadRequest)
+        return
+    }
+    if in.BeneficiaryWalletID == "" {
+        http.Error(w, "beneficiary_wallet_id required", http.StatusBadRequest)
+        return
+    }
+    
+    u, err := db.GetUser(id)
+    if err != nil {
+        http.Error(w, "user not found: "+err.Error(), http.StatusNotFound)
+        return
+    }
+    
+    // Remove beneficiary from list
+    newList := []string{}
+    found := false
+    for _, b := range u.Beneficiaries {
+        if b == in.BeneficiaryWalletID {
+            found = true
+            continue
+        }
+        newList = append(newList, b)
+    }
+    
+    if !found {
+        http.Error(w, "beneficiary not found", http.StatusNotFound)
+        return
+    }
+    
+    u.Beneficiaries = newList
+    u.UpdatedAt = time.Now().UTC()
+    if err := db.UpdateUser(u); err != nil {
+        http.Error(w, "failed to update user: "+err.Error(), http.StatusInternalServerError)
+        return
+    }
+    
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]interface{}{
+        "message": "beneficiary removed",
+        "beneficiaries": u.Beneficiaries,
+    })
+}

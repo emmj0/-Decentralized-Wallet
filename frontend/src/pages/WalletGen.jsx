@@ -57,19 +57,30 @@ export default function WalletGen() {
     setPub(publicB64)
     setPriv(privateB64)
 
-    // Encrypt and store private key
-    try {
-      const encrypted = encrypt(privateB64, passphrase)
-      localStorage.setItem('wallet_private_key_encrypted', encrypted)
-      localStorage.setItem('wallet_public_key', publicB64)
-      localStorage.setItem('wallet_id', publicB64.substring(0, 16)) // Use first 16 chars as wallet ID
-      setHasWallet(true)
-      setEncryptionStatus('decrypted')
-      setStatus('✓ Keypair generated. Private key encrypted with passphrase.')
-      setShowPassphrase(false)
-    } catch (e) {
-      setPassphraseError('Encryption failed: ' + e.message)
-    }
+    // Generate wallet ID from SHA-256 hash of public key
+    const encoder = new TextEncoder()
+    const data = encoder.encode(publicB64)
+    crypto.subtle.digest('SHA-256', data).then(hashBuffer => {
+      const hashArray = Array.from(new Uint8Array(hashBuffer))
+      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+      setWalletId(hashHex)
+      localStorage.setItem('wallet_id', hashHex)
+
+      // Encrypt and store private key
+      try {
+        const encrypted = encrypt(privateB64, passphrase)
+        localStorage.setItem('wallet_private_key_encrypted', encrypted)
+        localStorage.setItem('wallet_public_key', publicB64)
+        setHasWallet(true)
+        setEncryptionStatus('decrypted')
+        setStatus('✓ Keypair generated. Private key encrypted with passphrase.')
+        setShowPassphrase(false)
+      } catch (e) {
+        setPassphraseError('Encryption failed: ' + e.message)
+      }
+    }).catch(e => {
+      setPassphraseError('Failed to generate wallet ID: ' + e.message)
+    })
   }
 
   const register = async () => {
@@ -77,12 +88,18 @@ export default function WalletGen() {
       setStatus('Please generate a keypair first')
       return
     }
+    if (!walletId) {
+      setStatus('Wallet ID not generated yet, please wait...')
+      return
+    }
     setStatus('Registering wallet...')
     try {
-      const j = await callApi('/api/wallets/register', { method: 'POST', body: JSON.stringify({ public_key: pub }) })
-      setWalletId(j.wallet_id)
-      localStorage.setItem('wallet_id', j.wallet_id)
-      setStatus('✓ Wallet registered successfully')
+      const j = await callApi('/api/wallets/register', { method: 'POST', body: JSON.stringify({ public_key: pub, wallet_id: walletId }) })
+      // Verify the wallet ID matches what backend returns
+      if (j.wallet_id !== walletId) {
+        console.warn('Wallet ID mismatch:', walletId, 'vs', j.wallet_id)
+      }
+      setStatus('✓ Wallet registered successfully with ID: ' + j.wallet_id.slice(0, 12) + '...')
     } catch (e) {
       setStatus('Failed: ' + String(e))
     }
@@ -231,32 +248,42 @@ export default function WalletGen() {
 
               {walletId && (
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 mb-2">Wallet ID</label>
-                  <input
-                    type="text"
-                    className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-slate-50"
-                    value={walletId}
-                    readOnly
-                  />
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Wallet ID (SHA-256 of Public Key)</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      className="flex-1 px-4 py-2 border border-slate-300 rounded-lg bg-slate-50 font-mono text-sm"
+                      value={walletId}
+                      readOnly
+                    />
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(walletId)
+                        setStatus('✓ Wallet ID copied to clipboard')
+                      }}
+                      className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm font-medium"
+                    >
+                      📋 Copy
+                    </button>
+                  </div>
+                  <p className="text-xs text-slate-600 mt-1">Share this ID to receive payments</p>
                 </div>
               )}
 
               <div className="flex gap-3">
-                {!walletId && (
-                  <button
-                    onClick={register}
-                    disabled={loading}
-                    className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-slate-400 transition font-semibold"
-                  >
-                    {loading ? (
-                      <>
-                        <Spinner /> Registering...
-                      </>
-                    ) : (
-                      '📝 Register Public Key'
-                    )}
-                  </button>
-                )}
+                <button
+                  onClick={register}
+                  disabled={loading || !walletId}
+                  className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-slate-400 transition font-semibold"
+                >
+                  {loading ? (
+                    <>
+                      <Spinner /> Registering...
+                    </>
+                  ) : (
+                    '📝 Register Wallet with Backend'
+                  )}
+                </button>
                 <button
                   onClick={downloadKeyBackup}
                   className="flex-1 px-4 py-3 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition font-semibold"

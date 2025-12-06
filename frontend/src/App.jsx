@@ -37,6 +37,7 @@ function AppHeader() {
                 <Link to="/transactions" className="text-sm text-slate-700 hover:text-blue-600 transition">Txs</Link>
                 <Link to="/reports" className="text-sm text-slate-700 hover:text-blue-600 transition">Reports</Link>
                 <Link to="/admin" className="text-sm text-slate-700 hover:text-blue-600 transition">Admin</Link>
+                <Link to="/admin-signup" className="text-sm text-yellow-600 hover:text-yellow-700 transition">Make Admin</Link>
                 <button onClick={() => { signOut(); navigate('/'); }} className="text-sm text-red-600 hover:text-red-700 transition">Sign Out</button>
               </>
             ) : (
@@ -69,8 +70,8 @@ function AppRoutes() {
       <Route path="/transactions" element={<Transactions />} />
       <Route path="/reports" element={user ? <Reports /> : <Navigate to="/auth" />} />
       <Route path="/admin" element={user ? <Admin /> : <Navigate to="/auth" />} />
-      <Route path="/admin/make-admin" element={user ? <AdminSignup /> : <Navigate to="/auth" />} />
       <Route path="/admin/logs" element={user ? <SystemLogs /> : <Navigate to="/auth" />} />
+      <Route path="/admin-signup" element={user ? <AdminSignup /> : <Navigate to="/auth" />} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   )

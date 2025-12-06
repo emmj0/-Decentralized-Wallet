@@ -2,11 +2,18 @@ package api
 
 import (
     "context"
+    "crypto/sha256"
+    "encoding/hex"
     "encoding/json"
     "net/http"
     "os"
+    "strconv"
+    "strings"
+    "time"
 
+    "github.com/student/decentralized-wallet/internal/blockchain"
     "github.com/student/decentralized-wallet/internal/db"
+    "github.com/student/decentralized-wallet/internal/utxo"
 )
 
 // makeAdminHandler sets the `admin: true` custom claim for a given UID when provided the
@@ -46,22 +53,7 @@ func makeAdminHandler(w http.ResponseWriter, r *http.Request) {
     w.Header().Set("Content-Type", "application/json")
     json.NewEncoder(w).Encode(map[string]string{"status": "ok", "uid": in.UID})
 }
-package api
 
-import (
-    "encoding/json"
-    "net/http"
-    "os"
-    "strconv"
-    "strings"
-    "crypto/sha256"
-    "encoding/hex"
-    "time"
-
-    "github.com/student/decentralized-wallet/internal/blockchain"
-    "github.com/student/decentralized-wallet/internal/db"
-    "github.com/student/decentralized-wallet/internal/utxo"
-)
 
 type mineReq struct {
     Difficulty int `json:"difficulty"`

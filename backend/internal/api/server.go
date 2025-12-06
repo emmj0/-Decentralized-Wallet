@@ -22,7 +22,7 @@ func NewRouter() http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Allow all origins for dev; in production, lock this down to your domain
 			w.Header().Set("Access-Control-Allow-Origin", "*")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 			if r.Method == "OPTIONS" {
 				w.WriteHeader(http.StatusNoContent)
@@ -34,7 +34,7 @@ func NewRouter() http.Handler {
 	// OPTIONS preflight handler for any path to avoid mux returning 405 for OPTIONS
 	r.HandleFunc("/{any:.*}", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		w.WriteHeader(http.StatusNoContent)
 	}).Methods("OPTIONS")
@@ -47,15 +47,20 @@ func NewRouter() http.Handler {
 	r.HandleFunc("/api/wallets/{id}", walletHandler).Methods("GET")
 	r.HandleFunc("/api/wallets/register", RequireAuth(registerWalletHandler)).Methods("POST")
 	r.HandleFunc("/api/tx/send", RequireAuth(sendTxHandler)).Methods("POST")
+	r.HandleFunc("/api/transactions/filter", filterTransactionsHandler).Methods("GET")
 	// User profile endpoints
 	r.HandleFunc("/api/users", RequireAuth(createUserHandler)).Methods("POST")
 	r.HandleFunc("/api/users/{id}", RequireAuth(getUserHandler)).Methods("GET")
 	r.HandleFunc("/api/users/{id}", RequireAuth(updateUserHandler)).Methods("PUT")
+	r.HandleFunc("/api/users/{id}/beneficiaries", RequireAuth(listBeneficiariesHandler)).Methods("GET")
+	r.HandleFunc("/api/users/{id}/beneficiaries", RequireAuth(addBeneficiaryHandler)).Methods("POST")
+	r.HandleFunc("/api/users/{id}/beneficiaries", RequireAuth(removeBeneficiaryHandler)).Methods("DELETE")
 	// Admin endpoints
-	r.HandleFunc("/api/admin/mine", RequireAdmin(adminMineHandler)).Methods("POST")
-	r.HandleFunc("/api/admin/zakat", RequireAdmin(adminZakatHandler)).Methods("POST")
-	r.HandleFunc("/api/admin/validate_chain", RequireAdmin(validateChainHandler)).Methods("POST")
-	r.HandleFunc("/api/admin/fund", RequireAdmin(adminFundHandler)).Methods("POST")
+	// Admin endpoints require auth first so claims are present, then admin check
+	r.HandleFunc("/api/admin/mine", RequireAuth(RequireAdmin(adminMineHandler))).Methods("POST")
+	r.HandleFunc("/api/admin/zakat", RequireAuth(RequireAdmin(adminZakatHandler))).Methods("POST")
+	r.HandleFunc("/api/admin/validate_chain", RequireAuth(RequireAdmin(validateChainHandler))).Methods("POST")
+	r.HandleFunc("/api/admin/fund", RequireAuth(RequireAdmin(adminFundHandler))).Methods("POST")
 	// One-time bootstrap: set admin claim using server-side INITIAL_ADMIN_TOKEN
 	r.HandleFunc("/api/admin/make_admin", makeAdminHandler).Methods("POST")
 

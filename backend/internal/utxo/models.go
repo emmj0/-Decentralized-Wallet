@@ -127,3 +127,14 @@ func GetPendingTx(id string) (*Transaction, bool) {
     t, ok := PendingTxs[id]
     return t, ok
 }
+
+// GetPendingTransactions returns all pending transactions.
+func GetPendingTransactions() []*Transaction {
+    mu.RLock()
+    defer mu.RUnlock()
+    result := make([]*Transaction, 0, len(PendingTxs))
+    for _, tx := range PendingTxs {
+        result = append(result, tx)
+    }
+    return result
+}

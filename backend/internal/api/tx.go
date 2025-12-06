@@ -182,6 +182,90 @@ func sendTxHandler(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(map[string]string{"tx_id": txid})
 }
 
+// filterTransactionsHandler returns transactions with optional filtering by date range, status, wallet
+func filterTransactionsHandler(w http.ResponseWriter, r *http.Request) {
+    walletID := r.URL.Query().Get("wallet_id")
+    status := r.URL.Query().Get("status")
+    startDate := r.URL.Query().Get("start_date")
+    endDate := r.URL.Query().Get("end_date")
+    
+    // Get all pending transactions
+    pendingTxs := utxo.GetPendingTransactions()
+    
+    // Get confirmed transactions from database
+    confirmedTxs, err := db.GetAllTransactions()
+    if err != nil {
+        // If DB fails, just return pending ones
+        confirmedTxs = []interface{}{}
+    }
+    
+    allTxs := []map[string]interface{}{}
+    
+    // Add pending transactions
+    for _, tx := range pendingTxs {
+        txMap := map[string]interface{}{
+            "sender":    tx.Sender,
+            "receiver":  tx.Receiver,
+            "amount":    tx.Amount,
+            "note":      tx.Note,
+            "timestamp": tx.Timestamp,
+            "status":    "pending",
+            "tx_id":     tx.ID,
+        }
+        allTxs = append(allTxs, txMap)
+    }
+    
+    // Add confirmed transactions
+    for _, tx := range confirmedTxs {
+        if txMap, ok := tx.(map[string]interface{}); ok {
+            txMap["status"] = "confirmed"
+            allTxs = append(allTxs, txMap)
+        }
+    }
+    
+    // Apply filters
+    filtered := []map[string]interface{}{}
+    for _, tx := range allTxs {
+        // Filter by wallet_id (matches sender or receiver)
+        if walletID != "" {
+            sender, _ := tx["sender"].(string)
+            receiver, _ := tx["receiver"].(string)
+            if sender != walletID && receiver != walletID {
+                continue
+            }
+        }
+        
+        // Filter by status
+        if status != "" {
+            txStatus, _ := tx["status"].(string)
+            if txStatus != status {
+                continue
+            }
+        }
+        
+        // Filter by date range (if timestamp is string format)
+        if startDate != "" || endDate != "" {
+            timestamp, _ := tx["timestamp"].(string)
+            if timestamp != "" {
+                if startDate != "" && timestamp < startDate {
+                    continue
+                }
+                if endDate != "" && timestamp > endDate {
+                    continue
+                }
+            }
+        }
+        
+        filtered = append(filtered, tx)
+    }
+    
+    w.Header().Set("Content-Type", "application/json")
+    json.NewEncoder(w).Encode(map[string]interface{}{
+        "transactions": filtered,
+        "count":        len(filtered),
+    })
+}
+
 // extend router in server.go to include these handlers
 func init() {
     // nothing here; router registration happens in server.NewRouter

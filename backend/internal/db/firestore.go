@@ -600,3 +600,19 @@ func AddTransactionRecord(t *utxo.Transaction, blockHash string, blockIndex int6
     _, err := FSClient.Collection("transactions").Doc(t.ID).Set(ctx, data)
     return err
 }
+
+// GetAllTransactions fetches all transactions from the transactions collection.
+func GetAllTransactions() ([]interface{}, error) {
+    if FSClient == nil {
+        return []interface{}{}, nil
+    }
+    docs, err := FSClient.Collection("transactions").Documents(ctx).GetAll()
+    if err != nil {
+        return nil, err
+    }
+    result := make([]interface{}, 0, len(docs))
+    for _, doc := range docs {
+        result = append(result, doc.Data())
+    }
+    return result, nil
+}
