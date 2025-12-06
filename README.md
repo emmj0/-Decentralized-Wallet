@@ -393,7 +393,7 @@ fly secrets set FIREBASE_JSON_B64="..."
 fly deploy
 ```
 
-**Frontend → Netlify/Vercel (Free)**
+**Frontend → Vercel**
 ```bash
 # Update frontend/src/config.js with backend URL
 export const API_BASE = 'https://your-backend.fly.dev'
@@ -401,28 +401,6 @@ export const API_BASE = 'https://your-backend.fly.dev'
 # Deploy
 netlify deploy --prod
 ```
-
----
-
-## 📊 Testing Checklist
-
-- [ ] Backend starts on `:8080`
-- [ ] Frontend loads on `:5173`
-- [ ] Sign up & log in works
-- [ ] Create user profile ✓
-- [ ] Generate Ed25519 wallet ✓
-- [ ] Admin bootstrap with token ✓
-- [ ] Admin funds wallet (creates UTXO) ✓
-- [ ] Send signed transaction ✓
-- [ ] Transaction in pending pool ✓
-- [ ] Admin mines block ✓
-- [ ] Block in explorer ✓
-- [ ] Sender UTXOs marked spent ✓
-- [ ] Receiver balance updated ✓
-- [ ] Blockchain validates ✓
-- [ ] System logs audit trail ✓
-
----
 
 ## 🛠️ Tech Stack
 
@@ -447,18 +425,4 @@ netlify deploy --prod
 
 ---
 
-## 📞 Support
-
-- **Questions?** → Read [QUICKSTART.md](./QUICKSTART.md) or [QUICK_REFERENCE.md](./QUICK_REFERENCE.md)
-- **API examples?** → See [TEST_INPUTS.md](./TEST_INPUTS.md)
-- **Deploy issue?** → Check [FLY_DEPLOYMENT.md](./FLY_DEPLOYMENT.md)
-
----
-
-**Status:** ✅ Complete & Production-Ready  
-**Version:** 1.0  
-**Last Updated:** December 7, 2025  
-**License:** MIT
-
-**→ Start:** [QUICKSTART.md](./QUICKSTART.md) (5 minutes)
 
